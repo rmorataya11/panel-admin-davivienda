@@ -19,6 +19,8 @@ export type AdminContractingRequest = {
   contactoTecnicoNombre: string;
   contactoTecnicoEmail: string;
   contactoTecnicoTelefono: string | null;
+  appId: string | null;
+  appName: string | null;
   status: string;
   createdAt: string;
 };

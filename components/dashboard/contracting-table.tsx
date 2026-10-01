@@ -130,10 +130,11 @@ export function ContractingTable() {
         <p className="text-sm text-zinc-500">No hay solicitudes de contratación.</p>
       ) : (
         <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
-          <table className="min-w-240 w-full border-collapse text-left text-sm">
+          <table className="min-w-280 w-full border-collapse text-left text-sm">
             <thead className="bg-zinc-50 text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400">
               <tr>
                 <th className="px-3 py-3 font-medium">Razón social</th>
+                <th className="px-3 py-3 font-medium">App</th>
                 <th className="px-3 py-3 font-medium">NIT</th>
                 <th className="px-3 py-3 font-medium">Industria</th>
                 <th className="px-3 py-3 font-medium">Caso de uso</th>
@@ -150,6 +151,13 @@ export function ContractingTable() {
                 return (
                   <tr key={row.id} className="border-t border-zinc-200 align-top dark:border-zinc-800">
                     <td className="px-3 py-3 font-medium text-zinc-900 dark:text-zinc-100">{row.razonSocial}</td>
+                    <td className="px-3 py-3">
+                      {row.appId && row.appName ? (
+                        row.appName
+                      ) : (
+                        <span className="text-zinc-500">Sin app vinculada</span>
+                      )}
+                    </td>
                     <td className="px-3 py-3 whitespace-nowrap">{row.nit}</td>
                     <td className="px-3 py-3">{labelFor(row.industria, industryLabels)}</td>
                     <td className="max-w-xs px-3 py-3">
