@@ -11,9 +11,10 @@ const links = [
   { href: "/dashboard", label: "Inicio" },
   { href: "/dashboard/contrataciones", label: "Contrataciones" },
   { href: "/dashboard/soporte", label: "Soporte" },
+  { href: "/dashboard/catalogo", label: "Catálogo" },
 ];
 
-const upcoming = ["Apps", "Catálogo"];
+const upcoming = ["Apps"];
 
 function isActive(pathname: string, href: string) {
   if (href === "/dashboard") {
