@@ -13,13 +13,21 @@ import {
   type EndpointParameter,
   type EndpointRecord,
 } from "@/lib/catalog/endpoint";
+import {
+  backLinkClass,
+  errorTextClass,
+  fieldClass as inputClass,
+  mutedTextClass,
+  primaryButtonClass,
+  savedTextClass,
+  secondaryButtonClass,
+  sectionClass,
+  smallSecondaryClass,
+  tabActiveClass,
+  tabIdleClass,
+  textAreaClass,
+} from "@/components/dashboard/styles";
 import { adminFetch } from "@/lib/auth/admin-fetch";
-
-const inputClass =
-  "h-10 w-full rounded-md border border-zinc-300 bg-white px-3 text-sm text-zinc-900 outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100";
-
-const textAreaClass =
-  "min-h-28 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100";
 
 const jsonClass = `${textAreaClass} min-h-40 font-mono text-xs`;
 
@@ -40,9 +48,9 @@ function ParameterList({
 }) {
   return (
     <fieldset className="flex flex-col gap-3">
-      <legend className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Parámetros</legend>
+      <legend className="text-sm font-medium text-[#2C2C2C]">Parámetros</legend>
       {items.map((item, index) => (
-        <div key={`parameter-${index}`} className="grid gap-2 rounded-md border border-zinc-200 p-3 dark:border-zinc-800">
+        <div key={`parameter-${index}`} className="grid gap-2 rounded-2xl border border-[#2C2C2C]/10 p-4">
           <div className="grid gap-2 sm:grid-cols-2">
             <input
               value={item.name}
@@ -99,7 +107,7 @@ function ParameterList({
             <button
               type="button"
               onClick={() => onChange(items.filter((_, itemIndex) => itemIndex !== index))}
-              className="h-10 rounded-md border border-zinc-300 px-3 text-xs dark:border-zinc-700"
+              className={smallSecondaryClass}
             >
               Eliminar
             </button>
@@ -122,7 +130,7 @@ function ParameterList({
       <button
         type="button"
         onClick={() => onChange([...items, emptyParameter()])}
-        className="h-9 self-start rounded-md border border-zinc-300 px-3 text-sm dark:border-zinc-700"
+        className={`${secondaryButtonClass} self-start`}
       >
         Agregar parámetro
       </button>
@@ -139,9 +147,9 @@ function ErrorList({
 }) {
   return (
     <fieldset className="flex flex-col gap-3">
-      <legend className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Errores</legend>
+      <legend className="text-sm font-medium text-[#2C2C2C]">Errores</legend>
       {items.map((item, index) => (
-        <div key={`error-${index}`} className="grid gap-2 rounded-md border border-zinc-200 p-3 dark:border-zinc-800">
+        <div key={`error-${index}`} className="grid gap-2 rounded-2xl border border-[#2C2C2C]/10 p-4">
           <div className="grid gap-2 sm:grid-cols-[140px_1fr_auto]">
             <input
               value={item.code}
@@ -164,7 +172,7 @@ function ErrorList({
             <button
               type="button"
               onClick={() => onChange(items.filter((_, itemIndex) => itemIndex !== index))}
-              className="h-10 rounded-md border border-zinc-300 px-3 text-xs dark:border-zinc-700"
+              className={smallSecondaryClass}
             >
               Eliminar
             </button>
@@ -187,7 +195,7 @@ function ErrorList({
       <button
         type="button"
         onClick={() => onChange([...items, emptyError()])}
-        className="h-9 self-start rounded-md border border-zinc-300 px-3 text-sm dark:border-zinc-700"
+        className={`${secondaryButtonClass} self-start`}
       >
         Agregar error
       </button>
@@ -311,7 +319,7 @@ export function EndpointForm({ apiId, endpointId }: { apiId: string; endpointId?
   }
 
   if (loading) {
-    return <p className="text-sm text-zinc-500">Cargando endpoint…</p>;
+    return <p className={mutedTextClass}>Cargando endpoint…</p>;
   }
 
   const content = language === "es" ? contentEs : contentEn;
@@ -320,15 +328,15 @@ export function EndpointForm({ apiId, endpointId }: { apiId: string; endpointId?
 
   return (
     <form onSubmit={handleSubmit} className="flex max-w-3xl flex-col gap-6">
-      <Link href={`/dashboard/catalogo/${apiId}/endpoints`} className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400">
+      <Link href={`/dashboard/catalogo/${apiId}/endpoints`} className={backLinkClass}>
         Volver a los endpoints
       </Link>
 
-      <section className="flex flex-col gap-4 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+      <section className={sectionClass}>
         {endpointId ? (
           <div className="flex flex-col gap-1.5 text-sm">
             <span className="font-medium">Slug</span>
-            <p className="text-zinc-700 dark:text-zinc-300">{slug}</p>
+            <p className="text-[#2C2C2C]/80">{slug}</p>
           </div>
         ) : (
           <label className="flex flex-col gap-1.5 text-sm font-medium">
@@ -390,9 +398,7 @@ export function EndpointForm({ apiId, endpointId }: { apiId: string; endpointId?
             aria-selected={language === value}
             onClick={() => setLanguage(value)}
             className={
-              language === value
-                ? "h-9 rounded-md bg-zinc-900 px-4 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
-                : "h-9 rounded-md border border-zinc-300 px-4 text-sm dark:border-zinc-700"
+              language === value ? tabActiveClass : tabIdleClass
             }
           >
             {label}
@@ -400,6 +406,7 @@ export function EndpointForm({ apiId, endpointId }: { apiId: string; endpointId?
         ))}
       </div>
 
+      <div className={sectionClass}>
       <label className="flex flex-col gap-1.5 text-sm font-medium">
         Descripción
         <textarea
@@ -423,19 +430,16 @@ export function EndpointForm({ apiId, endpointId }: { apiId: string; endpointId?
         onChange={(parameters) => setContent({ ...content, parameters })}
       />
       <ErrorList items={content.errors} onChange={(errors) => setContent({ ...content, errors })} />
+      </div>
 
       {error ? (
-        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+        <p role="alert" className={errorTextClass}>
           {error}
         </p>
       ) : null}
-      {saved ? <p className="text-sm text-emerald-700 dark:text-emerald-400">Cambios guardados.</p> : null}
+      {saved ? <p className={savedTextClass}>Cambios guardados.</p> : null}
 
-      <button
-        type="submit"
-        disabled={saving}
-        className="h-10 self-start rounded-md bg-zinc-900 px-5 text-sm font-medium text-white disabled:opacity-60 dark:bg-zinc-100 dark:text-zinc-900"
-      >
+      <button type="submit" disabled={saving} className={`${primaryButtonClass} self-start`}>
         {saving ? "Guardando…" : "Guardar"}
       </button>
     </form>

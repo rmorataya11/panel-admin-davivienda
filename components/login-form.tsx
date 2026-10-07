@@ -5,6 +5,7 @@ import { browserLocalPersistence, setPersistence, signInWithEmailAndPassword } f
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
+import { fieldClass, primaryButtonClass } from "@/components/dashboard/styles";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 
 function loginErrorMessage(error: unknown): string {
@@ -62,16 +63,15 @@ export function LoginForm() {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      noValidate
-      className="w-full max-w-sm rounded-lg border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950"
-    >
-      <div className="flex flex-col gap-4 text-left">
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="email" className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
-            Correo
-          </label>
+    <form onSubmit={handleSubmit} noValidate className="w-full max-w-md">
+      <p className="text-xs font-medium tracking-[0.18em] text-[#E1111C] uppercase">Ingreso</p>
+      <h2 className="mt-2 text-3xl font-medium text-[#2C2C2C]">Entre con su cuenta</h2>
+      <p className="mt-2 text-sm leading-6 text-[#2C2C2C]/70">
+        Use el correo autorizado en el panel. La contraseña es la de Identity Platform.
+      </p>
+      <div className="mt-8 flex flex-col gap-5">
+        <label className="flex flex-col gap-1.5 text-sm font-medium text-[#2C2C2C]" htmlFor="email">
+          Correo
           <input
             id="email"
             name="email"
@@ -79,14 +79,11 @@ export function LoginForm() {
             autoComplete="email"
             required
             disabled={pending}
-            className="h-10 rounded-md border border-zinc-300 bg-white px-3 text-sm text-zinc-900 outline-none focus:border-zinc-500 disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+            className={fieldClass}
           />
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="password" className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
-            Contraseña
-          </label>
+        </label>
+        <label className="flex flex-col gap-1.5 text-sm font-medium text-[#2C2C2C]" htmlFor="password">
+          Contraseña
           <input
             id="password"
             name="password"
@@ -94,21 +91,15 @@ export function LoginForm() {
             autoComplete="current-password"
             required
             disabled={pending}
-            className="h-10 rounded-md border border-zinc-300 bg-white px-3 text-sm text-zinc-900 outline-none focus:border-zinc-500 disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+            className={fieldClass}
           />
-        </div>
-
+        </label>
         {error ? (
-          <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+          <p role="alert" className="rounded-xl bg-[#870412]/8 px-3 py-2 text-sm text-[#870412]">
             {error}
           </p>
         ) : null}
-
-        <button
-          type="submit"
-          disabled={pending}
-          className="h-10 rounded-md bg-zinc-900 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60 dark:bg-zinc-100 dark:text-zinc-900"
-        >
+        <button type="submit" disabled={pending} className={primaryButtonClass}>
           {pending ? "Entrando…" : "Entrar"}
         </button>
       </div>

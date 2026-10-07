@@ -3,6 +3,15 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import {
+  emptyStateClass,
+  errorTextClass,
+  mutedTextClass,
+  smallPrimaryClass,
+  tableHeadClass,
+  tableRowClass,
+  tableWrapClass,
+} from "@/components/dashboard/styles";
 import type { AdminSupportCase } from "@/lib/admin/types";
 import { adminFetch } from "@/lib/auth/admin-fetch";
 
@@ -13,9 +22,9 @@ const severityLabels: Record<string, string> = {
 };
 
 const severityStyles: Record<string, string> = {
-  bloqueante: "bg-[#E1251B] text-white",
-  importante: "bg-[#141F25] text-white",
-  consulta: "bg-[#5B636A] text-white",
+  bloqueante: "bg-[#870412] text-white",
+  importante: "bg-[#E1111C] text-white",
+  consulta: "bg-[#2C2C2C] text-white",
 };
 
 const statusLabels: Record<string, string> = {
@@ -24,8 +33,8 @@ const statusLabels: Record<string, string> = {
 };
 
 const statusStyles: Record<string, string> = {
-  abierto: "bg-[#FFF6E8] text-[#A15C12]",
-  resuelto: "bg-[#EFFCF5] text-[#347659]",
+  abierto: "bg-[#2C2C2C] text-white",
+  resuelto: "bg-[#E1111C] text-white",
 };
 
 function formatDate(value: string) {
@@ -117,23 +126,23 @@ export function SupportTable() {
   }
 
   if (loading) {
-    return <p className="text-sm text-zinc-500">Cargando casos…</p>;
+    return <p className={mutedTextClass}>Cargando casos…</p>;
   }
 
   return (
     <div className="flex flex-col gap-4">
       {error ? (
-        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+        <p role="alert" className={errorTextClass}>
           {error}
         </p>
       ) : null}
 
       {rows.length === 0 ? (
-        <p className="text-sm text-zinc-500">No hay casos de soporte.</p>
+        <p className={emptyStateClass}>No hay casos de soporte.</p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
+        <div className={tableWrapClass}>
           <table className="min-w-215 w-full border-collapse text-left text-sm">
-            <thead className="bg-zinc-50 text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400">
+            <thead className={tableHeadClass}>
               <tr>
                 <th className="px-3 py-3 font-medium">Título</th>
                 <th className="px-3 py-3 font-medium">Descripción</th>
@@ -148,21 +157,21 @@ export function SupportTable() {
                 const busy = pendingId === row.id;
 
                 return (
-                  <tr key={row.id} className="border-t border-zinc-200 align-top dark:border-zinc-800">
-                    <td className="px-3 py-3 font-medium text-zinc-900 dark:text-zinc-100">{row.titulo}</td>
+                  <tr key={row.id} className={tableRowClass}>
+                    <td className="px-3 py-3 font-medium text-[#2C2C2C]">{row.titulo}</td>
                     <td className="max-w-md px-3 py-3">
                       <p className="line-clamp-3 whitespace-pre-wrap">{row.descripcion}</p>
                     </td>
                     <td className="px-3 py-3">
                       <span
-                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${severityStyles[row.severidad] ?? "bg-zinc-200 text-zinc-800"}`}
+                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${severityStyles[row.severidad] ?? "bg-[#2C2C2C] text-white"}`}
                       >
                         {labelFor(row.severidad, severityLabels)}
                       </span>
                     </td>
                     <td className="px-3 py-3">
                       <span
-                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${statusStyles[row.status] ?? "bg-zinc-100 text-zinc-700"}`}
+                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${statusStyles[row.status] ?? "border border-[#2C2C2C]/15 bg-white text-[#2C2C2C]"}`}
                       >
                         {labelFor(row.status, statusLabels)}
                       </span>
@@ -173,7 +182,7 @@ export function SupportTable() {
                         type="button"
                         disabled={busy || row.status === "resuelto"}
                         onClick={() => markResolved(row.id)}
-                        className="h-8 rounded-md bg-zinc-900 px-3 text-xs font-medium text-white disabled:opacity-40 dark:bg-zinc-100 dark:text-zinc-900"
+                        className={smallPrimaryClass}
                       >
                         Marcar como resuelto
                       </button>

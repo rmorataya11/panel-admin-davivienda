@@ -1,10 +1,13 @@
 import { CatalogForm } from "@/components/dashboard/catalog-form";
+import { PageHeader } from "@/components/dashboard/page-header";
 
 export default function NewCatalogApiPage() {
   return (
-    <main className="px-4 py-8 sm:px-6">
-      <h1 className="mb-6 text-2xl font-semibold tracking-tight">Nueva API</h1>
-      <CatalogForm />
+    <main className="px-4 py-8 sm:px-8">
+      <PageHeader eyebrow="Catálogo" title="Nueva API" description="Complete el contenido en español e inglés antes de publicarla." />
+      <div className="mt-8">
+        <CatalogForm />
+      </div>
     </main>
   );
 }

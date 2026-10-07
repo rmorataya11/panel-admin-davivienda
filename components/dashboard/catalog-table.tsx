@@ -4,6 +4,22 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import {
+  dangerButtonClass,
+  dialogClass,
+  dialogOverlayClass,
+  emptyStateClass,
+  errorTextClass,
+  mutedTextClass,
+  primaryButtonClass,
+  secondaryButtonClass,
+  smallPrimaryClass,
+  smallSecondaryClass,
+  tableClass,
+  tableHeadClass,
+  tableRowClass,
+  tableWrapClass,
+} from "@/components/dashboard/styles";
 import type { CatalogSummary } from "@/lib/catalog/content";
 import { adminFetch } from "@/lib/auth/admin-fetch";
 
@@ -80,32 +96,29 @@ export function CatalogTable() {
   }
 
   if (loading) {
-    return <p className="text-sm text-zinc-500">Cargando catálogo…</p>;
+    return <p className={mutedTextClass}>Cargando catálogo…</p>;
   }
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex justify-end">
-        <Link
-          href="/dashboard/catalogo/nueva"
-          className="inline-flex h-10 items-center rounded-md bg-zinc-900 px-4 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
-        >
+        <Link href="/dashboard/catalogo/nueva" className={primaryButtonClass}>
           Nueva API
         </Link>
       </div>
 
       {error ? (
-        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+        <p role="alert" className={errorTextClass}>
           {error}
         </p>
       ) : null}
 
       {rows.length === 0 ? (
-        <p className="text-sm text-zinc-500">No hay APIs en el catálogo.</p>
+        <p className={emptyStateClass}>No hay APIs en el catálogo.</p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
-          <table className="w-full min-w-200 border-collapse text-left text-sm">
-            <thead className="bg-zinc-50 text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400">
+        <div className={tableWrapClass}>
+          <table className={tableClass}>
+            <thead className={tableHeadClass}>
               <tr>
                 <th className="px-3 py-3 font-medium">Título</th>
                 <th className="px-3 py-3 font-medium">Slug</th>
@@ -116,8 +129,8 @@ export function CatalogTable() {
             </thead>
             <tbody>
               {rows.map((row) => (
-                <tr key={row.id} className="border-t border-zinc-200 dark:border-zinc-800">
-                  <td className="px-3 py-3 font-medium text-zinc-900 dark:text-zinc-100">
+                <tr key={row.id} className={tableRowClass}>
+                  <td className="px-3 py-3 font-medium text-[#2C2C2C]">
                     {row.titleEs || "Sin título"}
                   </td>
                   <td className="px-3 py-3 whitespace-nowrap">{row.slug}</td>
@@ -127,14 +140,14 @@ export function CatalogTable() {
                     <div className="flex gap-2">
                       <Link
                         href={`/dashboard/catalogo/${row.id}`}
-                        className="inline-flex h-8 items-center rounded-md bg-zinc-900 px-3 text-xs font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
+                        className={smallPrimaryClass}
                       >
                         Editar
                       </Link>
                       <button
                         type="button"
                         onClick={() => setPendingDelete(row)}
-                        className="h-8 rounded-md border border-zinc-300 px-3 text-xs font-medium text-zinc-800 dark:border-zinc-700 dark:text-zinc-100"
+                        className={smallSecondaryClass}
                       >
                         Eliminar
                       </button>
@@ -151,7 +164,7 @@ export function CatalogTable() {
         <div className="fixed inset-0 z-20 flex items-center justify-center px-4">
           <button
             type="button"
-            className="absolute inset-0 bg-zinc-950/40"
+            className={dialogOverlayClass}
             aria-label="Cerrar confirmación"
             onClick={() => {
               if (!deleting) setPendingDelete(null);
@@ -161,12 +174,12 @@ export function CatalogTable() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="delete-catalog-title"
-            className="relative z-10 w-full max-w-md rounded-lg border border-zinc-200 bg-white p-5 shadow-lg dark:border-zinc-800 dark:bg-zinc-950"
+            className={dialogClass}
           >
-            <h2 id="delete-catalog-title" className="text-lg font-semibold">
+            <h2 id="delete-catalog-title" className="text-lg font-medium text-[#2C2C2C]">
               Eliminar API
             </h2>
-            <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+            <p className="mt-2 text-sm leading-6 text-[#2C2C2C]/70">
               Se eliminará «{pendingDelete.titleEs || pendingDelete.slug}» y también sus endpoints del catálogo.
               Esta acción no se puede deshacer.
             </p>
@@ -175,7 +188,7 @@ export function CatalogTable() {
                 type="button"
                 disabled={deleting}
                 onClick={() => setPendingDelete(null)}
-                className="h-9 rounded-md border border-zinc-300 px-3 text-sm dark:border-zinc-700"
+                className={secondaryButtonClass}
               >
                 Cancelar
               </button>
@@ -183,7 +196,7 @@ export function CatalogTable() {
                 type="button"
                 disabled={deleting}
                 onClick={confirmDelete}
-                className="h-9 rounded-md bg-red-700 px-3 text-sm font-medium text-white disabled:opacity-60"
+                className={dangerButtonClass}
               >
                 {deleting ? "Eliminando…" : "Eliminar"}
               </button>
