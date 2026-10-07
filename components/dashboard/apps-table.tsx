@@ -130,14 +130,14 @@ export function AppsTable() {
               <td className="px-3 py-3 whitespace-nowrap">{row.apiProduct}</td>
               <td className="px-3 py-3">
                 <span
-                  className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${environmentStyles[row.environment] ?? "border border-[#2C2C2C]/15 bg-white text-[#2C2C2C]"}`}
+                  className={`inline-flex px-1.5 py-0.5 text-xs ${environmentStyles[row.environment] ?? "border border-[#2C2C2C]/15 bg-white text-[#2C2C2C]"}`}
                 >
                   {labelFor(row.environment, environmentLabels)}
                 </span>
               </td>
               <td className="px-3 py-3">
                 <span
-                  className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${statusStyles[row.status] ?? "border border-[#2C2C2C]/15 bg-white text-[#2C2C2C]"}`}
+                  className={`inline-flex px-1.5 py-0.5 text-xs ${statusStyles[row.status] ?? "border border-[#2C2C2C]/15 bg-white text-[#2C2C2C]"}`}
                 >
                   {labelFor(row.status, statusLabels)}
                 </span>

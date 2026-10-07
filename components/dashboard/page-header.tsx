@@ -1,17 +1,15 @@
 export function PageHeader({
-  eyebrow,
   title,
   description,
 }: {
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
   description?: string;
 }) {
   return (
-    <header>
-      <p className="text-xs font-medium tracking-[0.18em] text-[#E1111C] uppercase">{eyebrow}</p>
-      <h1 className="mt-2 text-3xl font-medium text-[#2C2C2C]">{title}</h1>
-      {description ? <p className="mt-3 max-w-2xl text-sm leading-6 text-[#2C2C2C]/70">{description}</p> : null}
+    <header className="border-b border-[#e4e4e4] pb-4">
+      <h1 className="text-xl font-medium text-[#2C2C2C]">{title}</h1>
+      {description ? <p className="mt-1 max-w-3xl text-sm text-[#5c5c5c]">{description}</p> : null}
     </header>
   );
 }

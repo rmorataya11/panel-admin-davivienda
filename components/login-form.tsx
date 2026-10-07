@@ -63,13 +63,9 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="w-full max-w-md">
-      <p className="text-xs font-medium tracking-[0.18em] text-[#E1111C] uppercase">Ingreso</p>
-      <h2 className="mt-2 text-3xl font-medium text-[#2C2C2C]">Entre con su cuenta</h2>
-      <p className="mt-2 text-sm leading-6 text-[#2C2C2C]/70">
-        Use el correo autorizado en el panel. La contraseña es la de Identity Platform.
-      </p>
-      <div className="mt-8 flex flex-col gap-5">
+    <form onSubmit={handleSubmit} noValidate className="w-full max-w-sm">
+      <h1 className="text-xl font-medium text-[#2C2C2C]">Ingreso</h1>
+      <div className="mt-6 flex flex-col gap-4">
         <label className="flex flex-col gap-1.5 text-sm font-medium text-[#2C2C2C]" htmlFor="email">
           Correo
           <input
@@ -95,7 +91,7 @@ export function LoginForm() {
           />
         </label>
         {error ? (
-          <p role="alert" className="rounded-xl bg-[#870412]/8 px-3 py-2 text-sm text-[#870412]">
+          <p role="alert" className="border border-[#870412] bg-white px-3 py-2 text-sm text-[#870412]">
             {error}
           </p>
         ) : null}

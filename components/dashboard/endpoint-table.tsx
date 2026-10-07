@@ -132,7 +132,7 @@ export function EndpointTable({ apiId }: { apiId: string }) {
               {rows.map((row) => (
                 <tr key={row.id} className={tableRowClass}>
                   <td className="px-3 py-3 whitespace-nowrap">
-                    <span className="inline-flex rounded-full bg-[#E1111C] px-2.5 py-1 text-xs font-semibold text-white">
+                    <span className="inline-flex bg-[#E1111C] px-1.5 py-0.5 text-xs font-medium text-white">
                       {row.method}
                     </span>
                   </td>

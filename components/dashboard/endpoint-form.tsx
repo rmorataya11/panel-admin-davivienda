@@ -50,7 +50,7 @@ function ParameterList({
     <fieldset className="flex flex-col gap-3">
       <legend className="text-sm font-medium text-[#2C2C2C]">Parámetros</legend>
       {items.map((item, index) => (
-        <div key={`parameter-${index}`} className="grid gap-2 rounded-2xl border border-[#2C2C2C]/10 p-4">
+        <div key={`parameter-${index}`} className="grid gap-2 border border-[#e4e4e4] p-3">
           <div className="grid gap-2 sm:grid-cols-2">
             <input
               value={item.name}
@@ -149,7 +149,7 @@ function ErrorList({
     <fieldset className="flex flex-col gap-3">
       <legend className="text-sm font-medium text-[#2C2C2C]">Errores</legend>
       {items.map((item, index) => (
-        <div key={`error-${index}`} className="grid gap-2 rounded-2xl border border-[#2C2C2C]/10 p-4">
+        <div key={`error-${index}`} className="grid gap-2 border border-[#e4e4e4] p-3">
           <div className="grid gap-2 sm:grid-cols-[140px_1fr_auto]">
             <input
               value={item.code}

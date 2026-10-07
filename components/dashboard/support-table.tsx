@@ -164,14 +164,14 @@ export function SupportTable() {
                     </td>
                     <td className="px-3 py-3">
                       <span
-                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${severityStyles[row.severidad] ?? "bg-[#2C2C2C] text-white"}`}
+                        className={`inline-flex px-1.5 py-0.5 text-xs ${severityStyles[row.severidad] ?? "bg-[#2C2C2C] text-white"}`}
                       >
                         {labelFor(row.severidad, severityLabels)}
                       </span>
                     </td>
                     <td className="px-3 py-3">
                       <span
-                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${statusStyles[row.status] ?? "border border-[#2C2C2C]/15 bg-white text-[#2C2C2C]"}`}
+                        className={`inline-flex px-1.5 py-0.5 text-xs ${statusStyles[row.status] ?? "border border-[#2C2C2C]/15 bg-white text-[#2C2C2C]"}`}
                       >
                         {labelFor(row.status, statusLabels)}
                       </span>
