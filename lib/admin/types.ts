@@ -25,6 +25,19 @@ export type AdminContractingRequest = {
   createdAt: string;
 };
 
+export type AdminApp = {
+  id: string;
+  name: string;
+  description: string | null;
+  apiProduct: string;
+  environment: string;
+  status: string;
+  developerEmail: string;
+  developerName: string;
+  companyName: string | null;
+  createdAt: string;
+};
+
 export type AdminSupportCase = {
   id: string;
   titulo: string;

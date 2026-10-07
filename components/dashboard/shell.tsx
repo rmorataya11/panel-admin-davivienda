@@ -12,9 +12,8 @@ const links = [
   { href: "/dashboard/contrataciones", label: "Contrataciones" },
   { href: "/dashboard/soporte", label: "Soporte" },
   { href: "/dashboard/catalogo", label: "Catálogo" },
+  { href: "/dashboard/apps", label: "Apps" },
 ];
-
-const upcoming = ["Apps"];
 
 function isActive(pathname: string, href: string) {
   if (href === "/dashboard") {
@@ -75,15 +74,6 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               </Link>
             );
           })}
-          {upcoming.map((label) => (
-            <span
-              key={label}
-              className="rounded-md px-3 py-2 text-sm whitespace-nowrap text-zinc-400 dark:text-zinc-600"
-            >
-              {label}
-              <span className="ml-2 text-xs">Próximamente</span>
-            </span>
-          ))}
         </nav>
       </aside>
       <div className="min-w-0 flex-1">{children}</div>
