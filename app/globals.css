@@ -12,13 +12,13 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-roboto);
+  --font-sans: Roboto, "Segoe UI", sans-serif;
 }
 
 body {
   background: #ffffff;
   color: #2c2c2c;
-  font-family: var(--font-roboto), "Segoe UI", sans-serif;
+  font-family: Roboto, "Segoe UI", sans-serif;
 }
 
 ::selection {
