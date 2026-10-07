@@ -4,12 +4,16 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Panel de Administración — Davivienda",
   description: "Panel de administración interno de Davivienda",
+  icons: {
+    icon: [{ url: "/logo/casita.png", type: "image/png" }],
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="es" className="h-full antialiased">
       <head>
+        <link rel="icon" href="/logo/casita.png" type="image/png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
