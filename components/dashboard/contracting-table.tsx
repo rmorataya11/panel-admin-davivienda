@@ -144,6 +144,7 @@ export function ContractingTable() {
             <thead className={tableHeadClass}>
               <tr>
                 <th className="px-3 py-3 font-medium">Razón social</th>
+                <th className="px-3 py-3 font-medium">API</th>
                 <th className="px-3 py-3 font-medium">App</th>
                 <th className="px-3 py-3 font-medium">NIT</th>
                 <th className="px-3 py-3 font-medium">Industria</th>
@@ -161,11 +162,12 @@ export function ContractingTable() {
                 return (
                   <tr key={row.id} className={tableRowClass}>
                     <td className="px-3 py-3 font-medium text-[#2C2C2C]">{row.razonSocial}</td>
+                    <td className="px-3 py-3">{row.apiName || row.apiProduct || "—"}</td>
                     <td className="px-3 py-3">
                       {row.appId && row.appName ? (
                         row.appName
                       ) : (
-                        <span className="text-[#2C2C2C]/60">Sin app vinculada</span>
+                        <span className="text-[#2C2C2C]/60">Se crea al aprobar</span>
                       )}
                     </td>
                     <td className="px-3 py-3 whitespace-nowrap">{row.nit}</td>
