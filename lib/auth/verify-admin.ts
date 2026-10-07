@@ -1,4 +1,4 @@
-import { getAdminAuth } from "@/lib/firebase/admin";
+import { createRemoteJWKSet, errors, jwtVerify } from "jose";
 
 export type VerifiedAdmin = {
   email: string;
@@ -39,14 +39,12 @@ function readBearerToken(request: Request): string | null {
   return token || null;
 }
 
-function isFirebaseAuthError(error: unknown): boolean {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    typeof error.code === "string" &&
-    error.code.startsWith("auth/")
-  );
+const firebaseJwks = createRemoteJWKSet(
+  new URL("https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com"),
+);
+
+function isTokenError(error: unknown): boolean {
+  return error instanceof errors.JOSEError;
 }
 
 export async function verifyAdmin(request: Request): Promise<VerifyAdminResult> {
@@ -59,11 +57,22 @@ export async function verifyAdmin(request: Request): Promise<VerifyAdminResult> 
   let email = "";
 
   try {
-    const decoded = await getAdminAuth().verifyIdToken(token);
-    uid = decoded.uid;
-    email = typeof decoded.email === "string" ? normalizeEmail(decoded.email) : "";
+    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+    if (!projectId) {
+      throw new Error("NEXT_PUBLIC_FIREBASE_PROJECT_ID no está definida.");
+    }
+
+    const { payload } = await jwtVerify(token, firebaseJwks, {
+      issuer: `https://securetoken.google.com/${projectId}`,
+      audience: projectId,
+    });
+    uid = typeof payload.sub === "string" ? payload.sub : "";
+    email = typeof payload.email === "string" ? normalizeEmail(payload.email) : "";
+    if (!uid) {
+      return { ok: false, status: 401, error: UNAUTHENTICATED };
+    }
   } catch (error) {
-    if (isFirebaseAuthError(error)) {
+    if (isTokenError(error)) {
       return { ok: false, status: 401, error: UNAUTHENTICATED };
     }
 
