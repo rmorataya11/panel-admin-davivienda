@@ -10,7 +10,8 @@ import { getFirebaseAuth } from "@/lib/firebase/client";
 
 const links = [
   { href: "/dashboard", label: "Inicio" },
-  { href: "/dashboard/contrataciones", label: "Contrataciones" },
+  { href: "/dashboard/contrataciones", label: "Solicitudes" },
+  { href: "/dashboard/usuarios", label: "Usuarios" },
   { href: "/dashboard/soporte", label: "Soporte" },
   { href: "/dashboard/catalogo", label: "Catálogo" },
   { href: "/dashboard/apps", label: "Apps" },

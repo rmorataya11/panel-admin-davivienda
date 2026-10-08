@@ -10,12 +10,20 @@ export const SUPPORT_CASE_SEVERITIES = ["bloqueante", "importante", "consulta"] 
 
 export type SupportCaseSeverity = (typeof SUPPORT_CASE_SEVERITIES)[number];
 
+export type AccessRequestType = "sandbox" | "produccion";
+
 export type AdminContractingRequest = {
   id: string;
+  developerId: string;
+  developerName: string;
+  developerEmail: string;
   razonSocial: string;
   nit: string;
   industria: string;
   casoUso: string;
+  volumenEstimado: string;
+  ambienteDestino: string;
+  requestType: AccessRequestType;
   contactoTecnicoNombre: string;
   contactoTecnicoEmail: string;
   contactoTecnicoTelefono: string | null;
@@ -40,6 +48,26 @@ export type AdminApp = {
   createdAt: string;
 };
 
+export type AdminDeveloper = {
+  id: string;
+  email: string;
+  fullName: string;
+  companyName: string | null;
+  nit: string | null;
+  dui: string | null;
+  phone: string | null;
+  sandboxAccess: boolean;
+  hasProductionApp: boolean;
+  portalDisabled: boolean;
+  adminNotes: string | null;
+  createdAt: string;
+};
+
+export type AdminDeveloperDetail = AdminDeveloper & {
+  requests: AdminContractingRequest[];
+  apps: AdminApp[];
+};
+
 export type AdminSupportCase = {
   id: string;
   titulo: string;
@@ -55,4 +83,16 @@ export function isContractingStatus(value: string): value is ContractingStatus {
 
 export function isSupportCaseStatus(value: string): value is SupportCaseStatus {
   return SUPPORT_CASE_STATUSES.includes(value as SupportCaseStatus);
+}
+
+export function normalizeAccessRequestType(value: string): AccessRequestType {
+  if (value === "sandbox" || value === "pruebas-extendidas") {
+    return "sandbox";
+  }
+
+  return "produccion";
+}
+
+export function isSandboxRequest(value: string) {
+  return normalizeAccessRequestType(value) === "sandbox";
 }

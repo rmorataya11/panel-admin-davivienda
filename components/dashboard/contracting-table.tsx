@@ -30,10 +30,20 @@ const statusLabels: Record<string, string> = {
   rejected: "Rechazada",
 };
 
+const typeLabels: Record<string, string> = {
+  sandbox: "Sandbox",
+  produccion: "Producción",
+};
+
 const statusStyles: Record<string, string> = {
   pending: "bg-[#2C2C2C] text-white",
   approved: "bg-[#E1111C] text-white",
   rejected: "bg-[#870412] text-white",
+};
+
+const typeStyles: Record<string, string> = {
+  sandbox: "border border-[#2C2C2C] text-[#2C2C2C]",
+  produccion: "bg-[#E1111C] text-white",
 };
 
 function formatDate(value: string) {
@@ -137,19 +147,17 @@ export function ContractingTable() {
       ) : null}
 
       {rows.length === 0 ? (
-        <p className={emptyStateClass}>No hay solicitudes de contratación.</p>
+        <p className={emptyStateClass}>No hay solicitudes.</p>
       ) : (
         <div className={tableWrapClass}>
           <table className="min-w-280 w-full border-collapse text-left text-sm">
             <thead className={tableHeadClass}>
               <tr>
-                <th className="px-3 py-3 font-medium">Razón social</th>
+                <th className="px-3 py-3 font-medium">Tipo</th>
+                <th className="px-3 py-3 font-medium">Empresa</th>
                 <th className="px-3 py-3 font-medium">API</th>
+                <th className="px-3 py-3 font-medium">Desarrollador</th>
                 <th className="px-3 py-3 font-medium">App</th>
-                <th className="px-3 py-3 font-medium">NIT</th>
-                <th className="px-3 py-3 font-medium">Industria</th>
-                <th className="px-3 py-3 font-medium">Caso de uso</th>
-                <th className="px-3 py-3 font-medium">Contacto técnico</th>
                 <th className="px-3 py-3 font-medium">Estado</th>
                 <th className="px-3 py-3 font-medium">Fecha</th>
                 <th className="px-3 py-3 font-medium">Acciones</th>
@@ -161,28 +169,35 @@ export function ContractingTable() {
 
                 return (
                   <tr key={row.id} className={tableRowClass}>
-                    <td className="px-3 py-3 font-medium text-[#2C2C2C]">{row.razonSocial}</td>
+                    <td className="px-3 py-3">
+                      <span
+                        className={`inline-flex px-1.5 py-0.5 text-xs ${typeStyles[row.requestType] ?? "border border-[#2C2C2C]"}`}
+                      >
+                        {labelFor(row.requestType, typeLabels)}
+                      </span>
+                    </td>
+                    <td className="px-3 py-3">
+                      <p className="font-medium text-[#2C2C2C]">{row.razonSocial}</p>
+                      <p className="text-[#5c5c5c]">{row.nit}</p>
+                      <p className="text-[#5c5c5c]">{labelFor(row.industria, industryLabels)}</p>
+                    </td>
                     <td className="px-3 py-3">{row.apiName || row.apiProduct || "—"}</td>
+                    <td className="px-3 py-3">
+                      <p className="font-medium text-[#2C2C2C]">{row.developerName || row.contactoTecnicoNombre}</p>
+                      <p className="text-[#5c5c5c]">{row.developerEmail || row.contactoTecnicoEmail}</p>
+                    </td>
                     <td className="px-3 py-3">
                       {row.appId && row.appName ? (
                         row.appName
                       ) : (
-                        <span className="text-[#2C2C2C]/60">Se crea al aprobar</span>
+                        <span className="text-[#5c5c5c]">
+                          {row.requestType === "sandbox" ? "Se crea al aprobar sandbox" : "Se crea o promueve al aprobar"}
+                        </span>
                       )}
-                    </td>
-                    <td className="px-3 py-3 whitespace-nowrap">{row.nit}</td>
-                    <td className="px-3 py-3">{labelFor(row.industria, industryLabels)}</td>
-                    <td className="max-w-xs px-3 py-3">
-                      <p className="line-clamp-3 whitespace-pre-wrap">{row.casoUso}</p>
-                    </td>
-                    <td className="px-3 py-3">
-                      <p className="font-medium text-[#2C2C2C]">{row.contactoTecnicoNombre}</p>
-                      <p>{row.contactoTecnicoEmail}</p>
-                      <p>{row.contactoTecnicoTelefono || "—"}</p>
                     </td>
                     <td className="px-3 py-3">
                       <span
-                        className={`inline-flex px-1.5 py-0.5 text-xs ${statusStyles[row.status] ?? "border border-[#2C2C2C]/15 bg-white text-[#2C2C2C]"}`}
+                        className={`inline-flex px-1.5 py-0.5 text-xs ${statusStyles[row.status] ?? "border border-[#2C2C2C]"}`}
                       >
                         {labelFor(row.status, statusLabels)}
                       </span>
