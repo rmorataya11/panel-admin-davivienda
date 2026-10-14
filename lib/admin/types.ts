@@ -48,6 +48,32 @@ export type AdminApp = {
   createdAt: string;
 };
 
+export const SANDBOX_APP_REVIEW_STATUSES = ["active", "rejected"] as const;
+
+export type SandboxAppReviewStatus = (typeof SANDBOX_APP_REVIEW_STATUSES)[number];
+
+export type AdminSandboxAppRequest = {
+  id: string;
+  name: string;
+  description: string | null;
+  apiProduct: string;
+  apiName: string | null;
+  environment: "sandbox";
+  status: string;
+  developerId: string;
+  developerEmail: string;
+  developerName: string;
+  companyName: string | null;
+  createdAt: string;
+  reviewedAt: string | null;
+  reviewedBy: string | null;
+  rejectionReason: string | null;
+};
+
+export function isSandboxAppReviewStatus(value: string): value is SandboxAppReviewStatus {
+  return SANDBOX_APP_REVIEW_STATUSES.includes(value as SandboxAppReviewStatus);
+}
+
 export type AdminDeveloper = {
   id: string;
   email: string;

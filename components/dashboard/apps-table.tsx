@@ -14,7 +14,9 @@ const environmentLabels: Record<string, string> = {
 };
 
 const statusLabels: Record<string, string> = {
+  pending: "Pendiente",
   active: "Activa",
+  rejected: "Rechazada",
   revoked: "Revocada",
 };
 
@@ -25,7 +27,9 @@ const environmentStyles: Record<string, string> = {
 };
 
 const statusStyles: Record<string, string> = {
+  pending: "bg-[#2C2C2C] text-white",
   active: "bg-[#E1111C] text-white",
+  rejected: "bg-[#870412] text-white",
   revoked: "bg-[#870412] text-white",
 };
 
