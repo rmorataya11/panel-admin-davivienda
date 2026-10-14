@@ -47,9 +47,11 @@ export async function PATCH(request: Request, context: RouteContext) {
       "No se pudo actualizar la solicitud de contratación.",
       error instanceof Error ? error.message : error,
     );
-    return NextResponse.json(
-      { error: "No se pudo actualizar la solicitud de contratación." },
-      { status: 500 },
-    );
+    const message =
+      error instanceof Error && error.message
+        ? error.message
+        : "No se pudo actualizar la solicitud.";
+
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

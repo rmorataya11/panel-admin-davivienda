@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   emptyStateClass,
@@ -13,7 +13,7 @@ import {
   tableRowClass,
   tableWrapClass,
 } from "@/components/dashboard/styles";
-import type { AdminContractingRequest, ContractingStatus } from "@/lib/admin/types";
+import type { AccessRequestType, AdminContractingRequest, ContractingStatus } from "@/lib/admin/types";
 import { adminFetch } from "@/lib/auth/admin-fetch";
 
 const industryLabels: Record<string, string> = {
@@ -46,6 +46,8 @@ const typeStyles: Record<string, string> = {
   produccion: "bg-[#E1111C] text-white",
 };
 
+type FilterType = "all" | AccessRequestType;
+
 function formatDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
@@ -68,6 +70,7 @@ export function ContractingTable() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const [filter, setFilter] = useState<FilterType>("all");
 
   useEffect(() => {
     let cancelled = false;
@@ -104,6 +107,14 @@ export function ContractingTable() {
     };
   }, [router]);
 
+  const visibleRows = useMemo(() => {
+    if (filter === "all") {
+      return rows;
+    }
+
+    return rows.filter((row) => row.requestType === filter);
+  }, [filter, rows]);
+
   async function updateStatus(id: string, status: ContractingStatus) {
     setPendingId(id);
     setError("");
@@ -138,16 +149,45 @@ export function ContractingTable() {
     return <p className={mutedTextClass}>Cargando solicitudes…</p>;
   }
 
+  const filters: Array<{ value: FilterType; label: string }> = [
+    { value: "all", label: "Todas" },
+    { value: "sandbox", label: "Sandbox" },
+    { value: "produccion", label: "Producción" },
+  ];
+
   return (
     <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap gap-2">
+        {filters.map((item) => (
+          <button
+            key={item.value}
+            type="button"
+            onClick={() => setFilter(item.value)}
+            className={
+              filter === item.value
+                ? "border-b-2 border-[#E1111C] px-3 py-1.5 text-sm font-medium text-[#E1111C]"
+                : "border-b-2 border-transparent px-3 py-1.5 text-sm text-[#2C2C2C] hover:text-[#E1111C]"
+            }
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+
       {error ? (
         <p role="alert" className={errorTextClass}>
           {error}
         </p>
       ) : null}
 
-      {rows.length === 0 ? (
-        <p className={emptyStateClass}>No hay solicitudes.</p>
+      {visibleRows.length === 0 ? (
+        <p className={emptyStateClass}>
+          {filter === "sandbox"
+            ? "No hay solicitudes de sandbox."
+            : filter === "produccion"
+              ? "No hay solicitudes de producción."
+              : "No hay solicitudes."}
+        </p>
       ) : (
         <div className={tableWrapClass}>
           <table className="min-w-280 w-full border-collapse text-left text-sm">
@@ -164,8 +204,9 @@ export function ContractingTable() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => {
+              {visibleRows.map((row) => {
                 const busy = pendingId === row.id;
+                const isPending = row.status === "pending";
 
                 return (
                   <tr key={row.id} className={tableRowClass}>
@@ -191,7 +232,9 @@ export function ContractingTable() {
                         row.appName
                       ) : (
                         <span className="text-[#5c5c5c]">
-                          {row.requestType === "sandbox" ? "Se crea al aprobar sandbox" : "Se crea o promueve al aprobar"}
+                          {row.requestType === "sandbox"
+                            ? "Se crea al aprobar sandbox"
+                            : "Se crea o promueve al aprobar"}
                         </span>
                       )}
                     </td>
@@ -207,7 +250,7 @@ export function ContractingTable() {
                       <div className="flex gap-2">
                         <button
                           type="button"
-                          disabled={busy || row.status === "approved"}
+                          disabled={busy || !isPending}
                           onClick={() => updateStatus(row.id, "approved")}
                           className={smallPrimaryClass}
                         >
@@ -215,7 +258,7 @@ export function ContractingTable() {
                         </button>
                         <button
                           type="button"
-                          disabled={busy || row.status === "rejected"}
+                          disabled={busy || !isPending}
                           onClick={() => updateStatus(row.id, "rejected")}
                           className={smallSecondaryClass}
                         >

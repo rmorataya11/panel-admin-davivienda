@@ -6,7 +6,7 @@ export default function ContractingPage() {
     <main className="flex flex-col gap-8 px-4 py-8 sm:px-8">
       <PageHeader
         title="Solicitudes"
-        description="Sandbox y producción en un solo listado. Aprobar sandbox libera documentación y crea la app sandbox. Aprobar producción crea o promueve la app de producción. Rechazar solo cambia el estado."
+        description="Sandbox y producción usan el mismo flujo: pendientes con Aprobar o Rechazar. Aprobar sandbox libera documentación y crea la app sandbox. Aprobar producción crea o promueve la app de producción. Rechazar solo cambia el estado."
       />
       <ContractingTable />
     </main>

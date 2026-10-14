@@ -104,7 +104,9 @@ function mapContractingRequest(row: ContractingRequestRow): AdminContractingRequ
 export async function listContractingRequests(): Promise<AdminContractingRequest[]> {
   const result = await query<ContractingRequestRow>(
     `${selectSql}
-     ORDER BY cr.created_at DESC`,
+     ORDER BY
+       CASE cr.status WHEN 'pending' THEN 0 WHEN 'approved' THEN 1 ELSE 2 END,
+       cr.created_at DESC`,
   );
 
   return result.rows.map(mapContractingRequest);
@@ -140,6 +142,29 @@ async function resolveApiTitle(client: PoolClient, slug: string): Promise<string
   return result.rows[0]?.title?.trim() || slug;
 }
 
+async function findExistingApp(
+  client: PoolClient,
+  input: {
+    developerId: string;
+    apiProduct: string;
+    environment: "sandbox" | "production";
+  },
+): Promise<string | null> {
+  const result = await client.query<{ id: string }>(
+    `SELECT id
+     FROM apps
+     WHERE developer_id = $1
+       AND api_product = $2
+       AND environment = $3
+       AND status = 'active'
+     ORDER BY created_at DESC
+     LIMIT 1`,
+    [input.developerId, input.apiProduct, input.environment],
+  );
+
+  return result.rows[0]?.id ?? null;
+}
+
 async function provisionApp(
   client: PoolClient,
   input: {
@@ -149,6 +174,11 @@ async function provisionApp(
     environment: "sandbox" | "production";
   },
 ): Promise<string> {
+  const existing = await findExistingApp(client, input);
+  if (existing) {
+    return existing;
+  }
+
   const title = await resolveApiTitle(client, input.apiProduct);
   const isSandbox = input.environment === "sandbox";
   const name = `${title} · ${isSandbox ? "Sandbox" : "Producción"}`;
@@ -183,6 +213,104 @@ async function provisionApp(
   );
 
   return appId;
+}
+
+async function grantSandboxAccess(client: PoolClient, developerId: string) {
+  await client.query(
+    `UPDATE developers
+     SET sandbox_access_granted_at = COALESCE(sandbox_access_granted_at, now()),
+         updated_at = now()
+     WHERE id = $1`,
+    [developerId],
+  );
+}
+
+async function approveSandboxRequest(
+  client: PoolClient,
+  input: {
+    requestId: string;
+    developerId: string;
+    apiProduct: string | null;
+    casoUso: string;
+    appId: string | null;
+  },
+) {
+  await grantSandboxAccess(client, input.developerId);
+
+  let appId = input.appId;
+
+  if (appId) {
+    await client.query(
+      `UPDATE apps
+       SET status = 'active',
+           environment = CASE
+             WHEN environment = 'production' THEN environment
+             ELSE 'sandbox'
+           END
+       WHERE id = $1`,
+      [appId],
+    );
+  } else if (input.apiProduct) {
+    appId = await provisionApp(client, {
+      developerId: input.developerId,
+      apiProduct: input.apiProduct,
+      description: input.casoUso?.trim() || null,
+      environment: "sandbox",
+    });
+  }
+
+  if (appId && appId !== input.appId) {
+    await client.query(
+      `UPDATE contracting_requests
+       SET app_id = $2
+       WHERE id = $1`,
+      [input.requestId, appId],
+    );
+  }
+}
+
+async function approveProductionRequest(
+  client: PoolClient,
+  input: {
+    requestId: string;
+    developerId: string;
+    apiProduct: string | null;
+    casoUso: string;
+    appId: string | null;
+  },
+) {
+  if (input.appId) {
+    const appUpdate = await client.query(
+      `UPDATE apps
+       SET environment = 'production', status = 'active'
+       WHERE id = $1`,
+      [input.appId],
+    );
+
+    if ((appUpdate.rowCount ?? 0) !== 1) {
+      throw new Error("No se encontró la app vinculada.");
+    }
+
+    return;
+  }
+
+  if (!input.apiProduct) {
+    throw new Error("La solicitud no indica una API para crear la app.");
+  }
+
+  const appId = await provisionApp(client, {
+    developerId: input.developerId,
+    apiProduct: input.apiProduct,
+    description: input.casoUso?.trim() || null,
+    environment: "production",
+  });
+
+  await client.query(
+    `UPDATE contracting_requests
+     SET app_id = $2
+     WHERE id = $1`,
+    [input.requestId, appId],
+  );
 }
 
 export async function updateContractingRequestStatus(
@@ -229,80 +357,22 @@ export async function updateContractingRequestStatus(
     }
 
     if (status === "approved") {
-      const sandbox = isSandboxRequest(current.ambiente_destino);
+      const payload = {
+        requestId: id,
+        developerId: current.developer_id,
+        apiProduct: current.api_product,
+        casoUso: current.caso_uso,
+        appId: current.app_id,
+      };
 
-      if (sandbox) {
-        await client.query(
-          `UPDATE developers
-           SET sandbox_access_granted_at = COALESCE(sandbox_access_granted_at, now()),
-               updated_at = now()
-           WHERE id = $1`,
-          [current.developer_id],
-        );
-
-        if (current.app_id) {
-          await client.query(
-            `UPDATE apps
-             SET status = 'active',
-                 environment = CASE
-                   WHEN environment = 'production' THEN environment
-                   ELSE 'sandbox'
-                 END
-             WHERE id = $1`,
-            [current.app_id],
-          );
-        } else {
-          if (!current.api_product) {
-            throw new Error("La solicitud no indica una API para crear la app sandbox.");
-          }
-
-          const appId = await provisionApp(client, {
-            developerId: current.developer_id,
-            apiProduct: current.api_product,
-            description: current.caso_uso?.trim() || null,
-            environment: "sandbox",
-          });
-
-          await client.query(
-            `UPDATE contracting_requests
-             SET app_id = $2
-             WHERE id = $1`,
-            [id, appId],
-          );
-        }
-      } else if (current.app_id) {
-        const appUpdate = await client.query(
-          `UPDATE apps
-           SET environment = 'production', status = 'active'
-           WHERE id = $1`,
-          [current.app_id],
-        );
-
-        if ((appUpdate.rowCount ?? 0) !== 1) {
-          throw new Error("No se encontró la app vinculada.");
-        }
+      if (isSandboxRequest(current.ambiente_destino)) {
+        await approveSandboxRequest(client, payload);
       } else {
-        if (!current.api_product) {
-          throw new Error("La solicitud no indica una API para crear la app.");
-        }
-
-        const appId = await provisionApp(client, {
-          developerId: current.developer_id,
-          apiProduct: current.api_product,
-          description: current.caso_uso?.trim() || null,
-          environment: "production",
-        });
-
-        await client.query(
-          `UPDATE contracting_requests
-           SET app_id = $2
-           WHERE id = $1`,
-          [id, appId],
-        );
+        await approveProductionRequest(client, payload);
       }
     }
 
-    // Rechazar solo cambia el estado: no se revoca acceso ni apps ya existentes.
+    // Rechazar (sandbox o producción): solo cambia el estado.
     await client.query("COMMIT");
   } catch (error) {
     try {
