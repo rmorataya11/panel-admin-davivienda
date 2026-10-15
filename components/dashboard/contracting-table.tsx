@@ -48,6 +48,10 @@ const typeStyles: Record<string, string> = {
 
 type FilterType = "all" | AccessRequestType;
 
+type ContractingTableProps = {
+  requestTypeFilter?: FilterType;
+};
+
 function formatDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
@@ -64,13 +68,12 @@ function labelFor(value: string, labels: Record<string, string>) {
   return labels[value] ?? value;
 }
 
-export function ContractingTable() {
+export function ContractingTable({ requestTypeFilter = "all" }: ContractingTableProps) {
   const router = useRouter();
   const [rows, setRows] = useState<AdminContractingRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [pendingId, setPendingId] = useState<string | null>(null);
-  const [filter, setFilter] = useState<FilterType>("all");
 
   useEffect(() => {
     let cancelled = false;
@@ -108,12 +111,12 @@ export function ContractingTable() {
   }, [router]);
 
   const visibleRows = useMemo(() => {
-    if (filter === "all") {
+    if (requestTypeFilter === "all") {
       return rows;
     }
 
-    return rows.filter((row) => row.requestType === filter);
-  }, [filter, rows]);
+    return rows.filter((row) => row.requestType === requestTypeFilter);
+  }, [requestTypeFilter, rows]);
 
   async function updateStatus(id: string, status: ContractingStatus) {
     setPendingId(id);
@@ -149,31 +152,8 @@ export function ContractingTable() {
     return <p className={mutedTextClass}>Cargando solicitudes…</p>;
   }
 
-  const filters: Array<{ value: FilterType; label: string }> = [
-    { value: "all", label: "Todas" },
-    { value: "sandbox", label: "Sandbox" },
-    { value: "produccion", label: "Producción" },
-  ];
-
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap gap-2">
-        {filters.map((item) => (
-          <button
-            key={item.value}
-            type="button"
-            onClick={() => setFilter(item.value)}
-            className={
-              filter === item.value
-                ? "border-b-2 border-[#E1111C] px-3 py-1.5 text-sm font-medium text-[#E1111C]"
-                : "border-b-2 border-transparent px-3 py-1.5 text-sm text-[#2C2C2C] hover:text-[#E1111C]"
-            }
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
-
       {error ? (
         <p role="alert" className={errorTextClass}>
           {error}
@@ -182,11 +162,11 @@ export function ContractingTable() {
 
       {visibleRows.length === 0 ? (
         <p className={emptyStateClass}>
-          {filter === "sandbox"
-            ? "No hay solicitudes de sandbox."
-            : filter === "produccion"
+          {requestTypeFilter === "sandbox"
+            ? "No hay solicitudes de acceso sandbox."
+            : requestTypeFilter === "produccion"
               ? "No hay solicitudes de producción."
-              : "No hay solicitudes."}
+              : "No hay solicitudes de acceso."}
         </p>
       ) : (
         <div className={tableWrapClass}>
