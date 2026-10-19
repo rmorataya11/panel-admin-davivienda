@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   dangerButtonClass,
@@ -19,8 +19,15 @@ import {
   tableWrapClass,
   textAreaClass,
 } from "@/components/dashboard/styles";
+import { matchesDateRange, matchesEmpresaQuery } from "@/lib/admin/solicitudes-filters";
 import type { AdminSandboxAppRequest, SandboxAppReviewStatus } from "@/lib/admin/types";
 import { adminFetch } from "@/lib/auth/admin-fetch";
+
+type SandboxAppsTableProps = {
+  empresaQuery?: string;
+  fechaDesde?: string;
+  fechaHasta?: string;
+};
 
 function formatDate(value: string) {
   const date = new Date(value);
@@ -34,7 +41,11 @@ function formatDate(value: string) {
   }).format(date);
 }
 
-export function SandboxAppsTable() {
+export function SandboxAppsTable({
+  empresaQuery = "",
+  fechaDesde = "",
+  fechaHasta = "",
+}: SandboxAppsTableProps) {
   const router = useRouter();
   const [rows, setRows] = useState<AdminSandboxAppRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,6 +53,16 @@ export function SandboxAppsTable() {
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [rejectTarget, setRejectTarget] = useState<AdminSandboxAppRequest | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+
+  const visibleRows = useMemo(() => {
+    return rows.filter((row) => {
+      if (!matchesEmpresaQuery(empresaQuery, row.companyName, row.developerName, row.developerEmail)) {
+        return false;
+      }
+
+      return matchesDateRange(row.createdAt, fechaDesde, fechaHasta);
+    });
+  }, [empresaQuery, fechaDesde, fechaHasta, rows]);
 
   useEffect(() => {
     let cancelled = false;
@@ -129,8 +150,12 @@ export function SandboxAppsTable() {
         </p>
       ) : null}
 
-      {rows.length === 0 ? (
-        <p className={emptyStateClass}>No hay solicitudes de apps sandbox pendientes.</p>
+      {visibleRows.length === 0 ? (
+        <p className={emptyStateClass}>
+          {rows.length === 0
+            ? "No hay solicitudes de apps sandbox pendientes."
+            : "No hay apps sandbox que coincidan con los filtros."}
+        </p>
       ) : (
         <div className={tableWrapClass}>
           <table className={tableClass}>
@@ -146,7 +171,7 @@ export function SandboxAppsTable() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => {
+              {visibleRows.map((row) => {
                 const busy = pendingId === row.id;
 
                 return (

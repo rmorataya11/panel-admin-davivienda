@@ -13,6 +13,7 @@ import {
   tableRowClass,
   tableWrapClass,
 } from "@/components/dashboard/styles";
+import { matchesDateRange, matchesEmpresaQuery } from "@/lib/admin/solicitudes-filters";
 import type { AccessRequestType, AdminContractingRequest, ContractingStatus } from "@/lib/admin/types";
 import { adminFetch } from "@/lib/auth/admin-fetch";
 
@@ -50,6 +51,9 @@ type FilterType = "all" | AccessRequestType;
 
 type ContractingTableProps = {
   requestTypeFilter?: FilterType;
+  empresaQuery?: string;
+  fechaDesde?: string;
+  fechaHasta?: string;
 };
 
 function formatDate(value: string) {
@@ -68,7 +72,12 @@ function labelFor(value: string, labels: Record<string, string>) {
   return labels[value] ?? value;
 }
 
-export function ContractingTable({ requestTypeFilter = "all" }: ContractingTableProps) {
+export function ContractingTable({
+  requestTypeFilter = "all",
+  empresaQuery = "",
+  fechaDesde = "",
+  fechaHasta = "",
+}: ContractingTableProps) {
   const router = useRouter();
   const [rows, setRows] = useState<AdminContractingRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -111,12 +120,18 @@ export function ContractingTable({ requestTypeFilter = "all" }: ContractingTable
   }, [router]);
 
   const visibleRows = useMemo(() => {
-    if (requestTypeFilter === "all") {
-      return rows;
-    }
+    return rows.filter((row) => {
+      if (requestTypeFilter !== "all" && row.requestType !== requestTypeFilter) {
+        return false;
+      }
 
-    return rows.filter((row) => row.requestType === requestTypeFilter);
-  }, [requestTypeFilter, rows]);
+      if (!matchesEmpresaQuery(empresaQuery, row.razonSocial, row.nit)) {
+        return false;
+      }
+
+      return matchesDateRange(row.createdAt, fechaDesde, fechaHasta);
+    });
+  }, [empresaQuery, fechaDesde, fechaHasta, requestTypeFilter, rows]);
 
   async function updateStatus(id: string, status: ContractingStatus) {
     setPendingId(id);
@@ -162,11 +177,13 @@ export function ContractingTable({ requestTypeFilter = "all" }: ContractingTable
 
       {visibleRows.length === 0 ? (
         <p className={emptyStateClass}>
-          {requestTypeFilter === "sandbox"
-            ? "No hay solicitudes de acceso sandbox."
-            : requestTypeFilter === "produccion"
-              ? "No hay solicitudes de producción."
-              : "No hay solicitudes de acceso."}
+          {rows.length === 0
+            ? requestTypeFilter === "sandbox"
+              ? "No hay solicitudes de acceso sandbox."
+              : requestTypeFilter === "produccion"
+                ? "No hay solicitudes de producción."
+                : "No hay solicitudes de acceso."
+            : "No hay solicitudes que coincidan con los filtros."}
         </p>
       ) : (
         <div className={tableWrapClass}>
